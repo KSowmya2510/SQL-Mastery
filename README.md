@@ -14,7 +14,7 @@ Clone the repository:
 bash
 Copy
 Edit
-git clone https://github.com/YourUsername/SQL-Mastery.git
+git clone 
 Browse folders to find relevant SQL scripts.
 Run queries in SQL Server, MySQL, or PostgreSQL for hands-on practice.
 🤝 Contribute & Connect
