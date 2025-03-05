@@ -1,0 +1,685 @@
+Uses of Stored procedures :-
+
+Stored procedures are used for various different things. Some of the uses of stored procedures are as follows:
+
+Stored procedures are often used as access control mechanism and for data validation.
+
+The logic applied in this application is centralized and is stored in the application.
+
+Procedures are used to process the huge amount of data for complex procedures and functionalities and for logic implementation access of their data.
+
+These procedures are used to store data in them and can be accessed by procedures.
+
+They support modular programming.
+
+Faster execution takes place.
+
+It can also be used as a security mechanism.
+
+They are used for reducing network traffic.
+
+...............................
+
+What are Types of Stored procedures :
+
+User-defined stored procedures– these are the modules or routines which encapsulate code for reuse. There are 2 types of user-defined stored procedures:
+
+Transact-SQL: It is a collection of transaction SQL statements which takes and returns user-specified parameters.
+
+CLR: It is a reference to the Microsoft .NET framework.
+
+Extended stored procedures– with the help of these procedures, you can create your own external routine in a programming language.
+
+System stored procedures– these are used to perform various administrative activities in the SQL server.
+
+...................................
+
+What are Advantages of Stored procedures :
+
+It reduces the network usage between the client and the server and an immediate processing is performed on the database server. 
+It hence reduces the unnecessary data transfer.
+
+Security is improved and the user access to the stored procedure is managed by the administrator.
+
+Development cost reduces and reliability increases.
+
+It improves the performance of the database.
+
+
+These are used to encapsulate the logic and hence the code can be changed without affecting the clients.
+
+The access to other database objects becomes more secure.
+
+SQL injection attacks can be avoided using this.
+
+-----------------------------------------
+
+How will you optimize a stored procedure
+
+“SET NOCOUNT ON” statement should be included.
+
+A schema with its object name should be used.
+
+The prefix name “sp_” should not be used in a stored procedure name.
+
+Instead of using (SELECT*), use IF EXISTS (SELECT 1).
+
+SQL server cursors should be avoided whenever possible.
+
+The transaction should be kept as short as possible.
+
+In case of error handling, make use of the try-catch block.
+
+................................................
+
+create procedure employeetest(@ename varchar(15),@job varchar(15))
+as
+set nocount on;
+select ename,job from emp where job=@job;
+
+exec employeetest @ename='SMITH',@job='CLERK';
+
+When you use SET NOCOUNT ON, the message that indicates the number of rows that are affected by the T-SQL statement is not returned as part of the results. When you use SET NOCOUNT OFF; the count is returned. Using SET NOCOUNT ON can improve performance because network traffic can be reduced.
+
+create procedure multipleresults
+as
+select top(10) ename,job from emp;
+
+exec multipleresults;
+
+create procedure pattern
+@ename varchar(20) ='S%',
+@job varchar(20)='C%'
+as
+SET NOCOUNT ON;
+select ename,job from emp where ename like @ename and job like @job;
+
+
+DECLARE @ComparePrice MONEY, @Cost MONEY;
+EXECUTE Production.getList '%Bikes%', 700,@ComparePrice OUT,@Cost OUTPUT
+IF @Cost <= @ComparePrice
+BEGIN
+    PRINT 'These products can be purchased for less than
+    $'+RTRIM(CAST(@ComparePrice AS VARCHAR(20)))+'.'
+END
+ELSE
+    PRINT 'The prices for all products in this category exceed
+    $'+ RTRIM(CAST(@ComparePrice AS VARCHAR(20)))+'.';
+
+------------------------------------------------------
+
+create table : Order_detail
+
+orderno
+qty_ord
+qty_deld
+itemcode
+
+insert values to order_detail
+
+'O001'
+400
+150
+'i001'
+'O002'
+540
+600
+'i002'
+
+create procedure orders(@orderno varchar(15))
+as
+begin
+declare @qtyord int;
+declare @qtydeld int;
+select @qtyord=qty_ord from order_detail where orderno=@orderno;
+select @qtydeld=qty_deld from order_detail where orderno=@orderno;
+if @qtyord < @qtydeld
+begin
+	update order_detail set qty_ord=@qtyord where orderno=@orderno;
+end
+else
+begin
+	print 'Quantity order value is OK'
+end
+end
+
+exec orders 'O001'
+
+---------------------------------------------------------
+
+CREATE PROCEDURE ProductByModel (
+    @model_year SMALLINT,
+    @product_count INT OUTPUT
+) AS
+BEGIN
+    SELECT 
+        product_name,
+        list_price
+    FROM
+        production.products
+    WHERE
+        model_year = @model_year;
+
+    SELECT @product_count = @@ROWCOUNT;
+END;
+
+
+
+DECLARE @count INT;
+
+EXEC ProductByModel
+    @model_year = 2018,
+    @product_count = @count OUTPUT;
+
+SELECT @count AS 'Number of products found';
+
+
+CREATE PROCEDURE GetManager  
+   @employeeID INT,  
+   @managerID INT OUTPUT  
+AS  
+BEGIN  
+   SELECT @managerID = ManagerID
+   FROM HumanResources.Employee
+   WHERE EmployeeID = @employeeID  
+END
+....................
+
+create procedure getmanager
+@empno int,@mgr int output
+begin
+select @mgr=mgr from emp where empno=@empno;
+end
+
+=====================================
+
+create table Product  
+(  
+      ProductId int primary key,  
+      ProductName varchar(20) unique,  
+      ProductQty int,  
+      ProductPrice float  
+)  
+
+insert product values(1,'Printer',10,4500)  
+insert product values(2,'Scanner',15,3500)  
+insert product values(3,'Mouse',45,500)   
+
+
+
+Before inserting, check the detail about the product name. If the product name is available, update an existing product qty + inserted product qty,
+
+Before inserting, check the detail about the product name. If the product name is available, check the product price. If the existing product price is less, the inserted product product price replaces the existing product price with the inserted product price.
+
+If first and second conditions are not satisfied, insert the product information, as new record into the table.
+
+create procedure prcInsert   
+@id int,  
+@name varchar(40),  
+@qty int,  
+@price float  
+as  
+begin  
+ declare @cnt int  
+ declare @p float  
+ select @cnt=COUNT(ProductId)from Product where pname=@name  
+ if(@cnt>0)  
+ begin  
+  update Product set ProductQty=ProductQty+@qty where ProductName=@name  
+  select @p=ProductPrice from Product where ProductName=@name  
+  if(@p<@price)  
+  begin  
+   update Product set ProductPrice=@price where ProductName=@name  
+  end  
+ end  
+ else  
+ begin  
+  insert into Product values(@id,@name,@qty,@price)  
+ end  
+end   
+
+------------------------------------------------------------
+
+Create PROCEDURE [dbo].[usp_CreateMasterData]
+AS
+BEGIN
+SET NOCOUNT ON;
+truncate table [tbWeek];
+declare @n int =1;
+WHILE @n <= 52
+	BEGIN
+	   INSERT INTO [tbWeek]
+		(WeekName, UpdateDate)	
+		VALUES 
+	   (CONCAT('Week ', @n),  GETDATE());
+	   SELECT @n = @n + 1
+	END
+END
+
+================================
+
+
+alter procedure WhileLoopas 
+
+Begin
+
+Declare @n int =1;
+
+
+while @n<=10
+
+Begin
+INSERT INTO Prod VALUES (@n,'PRINTER',@n+10,'5000')
+select @n=@n+1
+End
+
+End
+
+
+================================================================
+
+FUNCTIONS :-
+
+Function compute a value
+
+Function returns some value
+
+Here we have two types of functions, they are
+
+Built-in functions
+	Eg: String functions,Date functions,Aggregate functions
+
+User-defined functions
+	We define of its own
+
+Again we have different types of user-defined functions, they are
+
+Scalar functions
+	returns only one value
+
+Table-valed functions
+	returns value as a table
+
+User-defined function definition is as follows :
+
+create function <functionname>(argument list)
+returns datatype
+is
+.
+..
+begin
+..
+.
+end
+
+select schemaname.functionname(argumentlist);
+
+To modify function body :
+
+alter function <functionname>(argument list)
+returns datatype
+is
+..
+begin
+..
+..
+end
+
+drop function <functionname>;
+
+Eg:
+
+create function addn(@x int,@y int)
+returns int
+as
+begin
+return (select @x+@y)
+end
+
+select dbo.addn(10,20);
+
+alter function addn(@x int,@y int)
+returns int
+as
+begin
+return (select @x*@y)
+end
+
+select dbo.addn(20,20);
+
+drop function addn;
+
+create function conctenation(@x varchar(15),@y varchar(15))
+returns varchar(100)
+as
+begin
+return (select @x+@y)
+end
+
+select dbo.conctenation('abc','xyz');
+
+select empno,ename,job,dbo.conctenation(ename,job),sal from emp;
+
+drop function conctenation;
+
+create function listing()
+returns table
+as
+return(select * from sys.tables);
+
+select * from listing();
+
+drop function listing;
+
+create function values()
+returns table
+as
+return (select * from emp);
+
+select * from values();
+
+drop function values;
+
+------------------------------------------------------------------------
+
+TRIGGER :-
+
+- To generate data
+
+- To audit the information
+
+- To validate the data
+
+- To maintain audit information in another table
+
+When we write DML event like insert or update or delete on table then trigger will be fired implicitly
+
+Two types of triggers i.e
+
+after triggers
+
+instead of triggers
+
+after triggers classified into :
+
+after insert
+
+after update
+
+after delete
+
+In place of after insert/after update / after delete we can write for insert,for update,for delete . Both of the meaning is same
+
+create trigger <Triggername>
+on tablename
+as
+for DML event
+..
+..
+..
+
+STORED PROCEDURES				TRIGGERS
+
+Invoked explicitly				Invoked implicitly
+
+Does not allowed Trigger			Allows stored procedure if code is 						very lengthy
+
+Allows COMMIT / ROLLBACK 			Does not allowed COMMIT/ROLLBACK
+
+create trigger prodtrigger
+on product
+for insert
+as
+declare @id int,@name varchar(2),@qty int,@price float
+select @id=i.productid from inserted i; 
+select @name=i.productname from inserted i; 
+select @qty=i.productqty from inserted i; 
+select @price=i.productprice from inserted i;
+insert into product_audit values(@id,@name,@qty,@price,getdate());
+
+insert into product values(10,'Keyboard',5,250);
+
+select * from product;
+
+select * from product_audit;
+
+Here inserted is a logical table
+
+i is a tablealias 
+
+create table employee_info(empno int,ename varchar(15),job varchar(15),sal int,deptno int);
+
+insert into employee_info values(100,'aa','bb',1000,10);
+
+create table employee_info_audit(empno int,ename varchar(15),job varchar(15),
+sal int,deptno int,audit_action varchar(15),audit_timestamp date);
+
+select * from employee_info_audit;
+
+create trigger auditing on employee_info
+for insert
+as
+declare @eno int,@en varchar(15),@j varchar(15),@s int,@dno int;
+declare @audit_action varchar(15);
+select @eno=empno from inserted;
+select @en=ename from inserted;
+select @j=job from inserted;
+select @s=sal from inserted;
+select @dno=deptno from inserted;
+set @audit_action='insert trigger fired'
+insert into employee_info_audit values(@eno,@en,@j,@s,@dno,@audit_action,getdate());
+
+insert into employee_info values(101,'bb','cc',2000,20);
+
+select * from employee_info;
+
+select * from employee_info_audit;
+
+create trigger deletion on employee_info
+instead of delete
+as
+declare @eno int,@en varchar(15),@j varchar(15),@s int,@dno int;
+select @eno=empno from deleted;
+select @en=ename from deleted;
+select @j=job from deleted;
+select @s=sal from deleted;
+select @dno=deptno from deleted;
+	if @s >1000 
+	begin
+	raiserror('We cannot delete data where sal >1000',16,1)
+	rollback;
+	end
+	else
+	begin
+	delete from employee_info where deptno=@dno;
+	commit;
+	end
+
+delete from employee_info where deptno=20;
+
+select * from employee_info;
+
+-----------------------------------------------------------------------------------
+create PROCEDURE reptq3 
+@lolimit money, 
+@hilimit money,
+@type char(12)
+AS
+select 
+case when grouping(pub_id) = 1 then 'ALL' else pub_id end as pub_id, 
+case when grouping(type) = 1 then 'ALL' else type end as type, 
+count(title_id) as cnt
+from titles
+where price >@lolimit AND price <@hilimit AND type = @type OR type LIKE '%cook%'
+group by pub_id, type with rollup
+GO
+
+
+
+Execute it:
+
+USE pubs
+GO
+DECLARE @return_value int
+EXEC @return_value = [dbo].[reptq3] @lolimit = 2,@hilimit = 9,@type = N'business'
+SELECT 'Return Value' = @return_value
+GO
+
+
+
+-----------------------------------------------------------------------------------
+
+How to set default values for parameters: 
+
+We can assign a default value to a parameter by specifying a value in the definition of the parameter. So let us define default values for the above stored procedure "Author_Titles". For that we need to modify it.
+
+USE pubs
+GO
+
+
+ALTER PROCEDURE [dbo].[Author_Titles] @state char(5)='%' 
+AS
+BEGIN
+-- SET NOCOUNT ON added to prevent extra result sets from
+-- interfering with SELECT statements.
+SET NOCOUNT ON;
+BEGIN
+SELECT a.au_lname, a.au_fname, t.title
+FROM titles t 
+INNER JOIN titleauthor ta ON t.title_id = ta.title_id 
+RIGHT OUTER JOIN authors a ON ta.au_id = a.au_id
+WHERE a.state like @state
+RETURN 0 
+END
+END
+
+-----------------------------------------------------------------------------------
+
+CREATE proc find_data @table varchar(128)
+as
+select * from @table
+GO
+
+
+------------Msg 1087, Level 16, State 1, Procedure proct, Line 3
+Must declare the table variable "@table".
+
+-----------------------------------------------------------------------------------
+
+Create proc [dbo].[find_data] @table varchar(128)
+as
+exec ('select * from ' + @table)
+
+........................................................................
+
+CREATE PROCEDURE usp_InsertEmployee
+WITH RECOMPILE
+@flag bit output,-- return 0 for fail,1 for success
+@EmpID int,
+@Name varchar(50),
+@Salary int,
+@Address varchar(100)
+AS
+BEGIN
+ BEGIN TRANSACTION 
+ BEGIN TRY
+ Insert into Employee(EmpID,Name,Salary,Address) Values(@EmpID,@Name,@Salary,@Address);
+ set @flag=1;
+ commit TRANSACTION;
+ END TRY 
+BEGIN CATCH
+ rollback TRANSACTION;
+ set @flag=0;
+ END CATCH
+END 
+
+
+
+Declare @flag bit
+--Now Execute this procedure. Every time this procedure will be recompiled
+EXEC usp_InsertEmployee @flag output,1,'Deepak',14000,'Noida'
+if @flag=1
+ print 'Successfully inserted'
+else
+ print 'There is some error'
+
+
+Recompile option at the time of Execution
+
+CREATE PROCEDURE usp_InsertEmployee
+@flag bit output,-- return 0 for fail,1 for success
+@EmpID int,
+@Name varchar(50),
+@Salary int,
+@Address varchar(100)
+AS
+BEGIN
+ BEGIN TRANSACTION 
+ BEGIN TRY
+ Insert into Employee(EmpID,Name,Salary,Address) Values(@EmpID,@Name,@Salary,@Address);
+ set @flag=1;
+ commit TRANSACTION;
+ END TRY 
+BEGIN CATCH
+ rollback TRANSACTION;
+ set @flag=0;
+ END CATCH
+END 
+
+
+ Declare @flag bit
+--Now Execute this procedure with RECOMPILE option, if you want to recompile its execution plan
+EXEC usp_InsertEmployee @flag output,2,'Jitendra',15000,'Noida' WITH RECOMPILE
+if @flag=1
+ print 'Successfully inserted'
+else
+ print 'There is some error'
+
+================================================================================
+
+Exception is nothing but run time error
+
+Exception occurs during execution of the program
+
+Exception handling block (TRY .. CATCH) used to stop the program from abnormal termination
+
+TRY block generating exception
+
+CATCH block handling exception
+
+begin
+begin try
+print 5/0
+end try
+begin catch
+print 'Division is not possible by zero'
+end catch
+end
+
+
+declare @a varchar(15)
+begin
+set @a='abc'
+begin try
+print 5/@a
+end try
+begin catch
+print 'Division is not possible by character'
+end catch
+end
+
+Declare @Abc int
+
+Begin
+
+Begin tryset @Abc=142Select * from Emp
+ where EMPNO=@Abc
+
+end try 
+
+Begin Catch 
+
+print 'no data available'End CatchEnd
+
+----------------------------------------------------------------------
+

@@ -1,0 +1,478 @@
+What is a Common Table Expression
+
+A Common Table Expression, also called as CTE in short form, is a temporary named result set that you can reference within a SELECT, INSERT, UPDATE, or DELETE statement. The CTE can also be used in a View.
+
+
+WITH expression_name [ ( column_name [,...n] ) ] 
+AS 
+( CTE_query_definition )
+
+To view the CTE result we use a Select query with the CTE expression name.
+
+Select ColumnLIST from expression_name
+
+Common Table Expression (CTE) Types
+There are two types of CTEs: Recursive and Non-Recursive
+
+Non-Recursive CTEs
+
+Non-Recursive CTEs are simple where the CTE doesn’t use any recursion, or repeated processing in of a sub-routine. We will create a simple Non-Recursive CTE to display the row number from 1 to 10.
+
+As per the CTE Syntax each CTE query will start with a “With” followed by the CTE Expression name with column list.
+
+Here we have been using only one column as ROWNO. Next is the Query part, here we write our select query to be execute for our CTE. After creating our CTE query to run the CTE use the select statement with CTE Expression name.
+
+;with ROWCTE(ROWNO) as  
+   (  
+     SELECT 
+  ROW_NUMBER() OVER(ORDER BY name ASC) AS ROWNO
+FROM sys.databases 
+WHERE database_id <= 10
+    )  
+ 
+SELECT * FROM ROWCTE 
+
+Recursive CTE
+
+Recursive CTEs are use repeated procedural loops aka recursion. The recursive query call themselves until the query satisfied the condition. In a recursive CTE we should provide a where condition to terminate the recursion.:
+
+We will see how to create a simple Recursive query to display the Row Number from 1 to 10 using a CTE.
+
+Firstly we declare the Integer variable as “RowNo” and set the default value as 1 and we have created our first CTE query as an expression name, “ROWCTE”. In our CTE we’ll first display the default row number and next we’ll use a Union ALL to increment and display the row number 1 by one until the Row No reaches the incremented value to 10. To view the result, we will use a select query to display our CTE result.
+
+Declare @RowNo int =1;
+;with ROWCTE as  
+   (  
+      SELECT @RowNo as ROWNO    
+		UNION ALL  
+      SELECT  ROWNO+1  
+  FROM  ROWCTE  
+  WHERE RowNo < 10
+    )  
+ 
+SELECT * FROM ROWCTE 
+
+CTE Query to display Date Range:
+
+Let’s consider as there is a scenario to display the date from start date to end date all one by one as each row with details. In order to display the recursive data, we will be using the CTE Query.
+
+Here we will write a CTE query to display the dates range with week number and day. For this we set the start and end date in parameter. Here in this example we have used the getdate() to set the start date as Todays date, and for end date we add 16 days from today.
+
+CTE without Union All
+
+Here we can see we have create a simple CTE query to display the RowNo, start date and week number. When we run this we will get only one result with RowNo as “1” ,StartDate as current date and week number along with week day.
+
+declare @startDate datetime,  
+        @endDate datetime;  
+  
+select  @startDate = getdate(),  
+        @endDate = getdate()+16;  
+-- select @sDate StartDate,@eDate EndDate  
+;with myCTE as  
+   (  
+      select 1 as ROWNO,@startDate StartDate,'W - '+convert(varchar(2),  
+            DATEPART( wk, @startDate))+' / D ('+convert(varchar(2),@startDate,106)+')' as 'WeekNumber'  
+    )  
+select ROWNO,Convert(varchar(10),StartDate,105)  as StartDate ,WeekNumber from myCTE ;
+
+
+WITH cte_sales_amounts (staff, sales, year) AS (
+    SELECT    
+        first_name + ' ' + last_name, 
+        SUM(quantity * list_price * (1 - discount)),
+        YEAR(order_date)
+    FROM    
+        sales.orders o
+    INNER JOIN sales.order_items i ON i.order_id = o.order_id
+    INNER JOIN sales.staffs s ON s.staff_id = o.staff_id
+    GROUP BY 
+        first_name + ' ' + last_name,
+        year(order_date)
+)
+
+SELECT
+    staff, 
+    sales
+FROM 
+    cte_sales_amounts
+WHERE
+    year = 2018;
+
+-------------------------------
+
+WITH cte_sales AS (
+    SELECT 
+        staff_id, 
+        COUNT(*) order_count  
+    FROM
+        sales.orders
+    WHERE 
+        YEAR(order_date) = 2018
+    GROUP BY
+        staff_id
+
+)
+SELECT
+    AVG(order_count) average_orders_by_staff
+FROM 
+    cte_sales;
+
+
+------------------------------------
+
+WITH cte_category_counts (
+    category_id, 
+    category_name, 
+    product_count
+)
+AS (
+    SELECT 
+        c.category_id, 
+        c.category_name, 
+        COUNT(p.product_id)
+    FROM 
+        production.products p
+        INNER JOIN production.categories c 
+            ON c.category_id = p.category_id
+    GROUP BY 
+        c.category_id, 
+        c.category_name
+),
+cte_category_sales(category_id, sales) AS (
+    SELECT    
+        p.category_id, 
+        SUM(i.quantity * i.list_price * (1 - i.discount))
+    FROM    
+        sales.order_items i
+        INNER JOIN production.products p 
+            ON p.product_id = i.product_id
+        INNER JOIN sales.orders o 
+            ON o.order_id = i.order_id
+    WHERE order_status = 4 -- completed
+    GROUP BY 
+        p.category_id
+) 
+
+SELECT 
+    c.category_id, 
+    c.category_name, 
+    c.product_count, 
+    s.sales
+FROM
+    cte_category_counts c
+    INNER JOIN cte_category_sales s 
+        ON s.category_id = c.category_id
+ORDER BY 
+    c.category_name;
+
+-----------------------
+
+Using CTE query for SQL Table
+
+Create Database: First, we create a database for creating our table
+
+USE MASTER    
+GO    
+-- 1) Check for the Database Exists .If the database is exist then drop and create new DB    
+IF EXISTS (SELECT [name] FROM sys.databases WHERE [name] = 'CTEDB' )    
+DROP DATABASE CTEDB    
+GO    
+    
+CREATE DATABASE CTEDB    
+GO    
+    
+USE CTEDB    
+GO   
+ 
+
+Create Table: Now we create a sample Item Table on the created Database.
+
+IF EXISTS ( SELECT [name] FROM sys.tables WHERE [name] = 'ItemDetails' )    
+DROP TABLE ItemDetails    
+GO    
+    
+CREATE TABLE ItemDetails    
+(    
+Item_ID int identity(1,1),    
+Item_Name VARCHAR(100) NOT NULL,    
+Item_Price int NOT NULL,    
+Date VARCHAR(100) NOT NULL ,
+CONSTRAINT [PK_ItemDetails] PRIMARY KEY CLUSTERED     
+(     
+[Item_ID] ASC     
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]     
+) ON [PRIMARY]     
+    
+GO   
+
+Insert into ItemDetails(Item_Name,Item_Price,Date) values('Access Point',950,'2017-02-10')    
+Insert into ItemDetails(Item_Name,Item_Price,Date) values('CD',350,'2017-02-13')     
+Insert into ItemDetails(Item_Name,Item_Price,Date) values('Desktop Computer',1400,'2017-02-16')    
+Insert into ItemDetails(Item_Name,Item_Price,Date) values('DVD',1390,'2017-03-05')    
+Insert into ItemDetails(Item_Name,Item_Price,Date) values('DVD Player',450,'2017-05-07')    
+Insert into ItemDetails(Item_Name,Item_Price,Date) values('Floppy',1250,'2017-05-07')    
+Insert into ItemDetails(Item_Name,Item_Price,Date) values('HDD',950,'2017-07-10')       
+Insert into ItemDetails(Item_Name,Item_Price,Date) values('MobilePhone',1150,'2017-07-10')    
+Insert into ItemDetails(Item_Name,Item_Price,Date) values('Mouse',399,'2017-08-12')    
+Insert into ItemDetails(Item_Name,Item_Price,Date) values('MP3 Player ',897,'2017-08-14')    
+Insert into ItemDetails(Item_Name,Item_Price,Date) values('Notebook',750,'2017-08-16')     
+Insert into ItemDetails(Item_Name,Item_Price, Date) values('Printer',675,'2017-07-18')    
+Insert into ItemDetails(Item_Name,Item_Price,Date) values('RAM',1950,'2017-09-23')    
+Insert into ItemDetails(Item_Name,Item_Price,Date) values('Smart Phone',679,'2017-09-10')    
+Insert into ItemDetails(Item_Name,Item_Price,Date) values('USB',950,'2017-02-26')    
+    
+select * from ItemDetails
+
+;WITH itemCTE (Item_ID, Item_Name, Item_Price,SalesYear)
+AS
+(
+  SELECT Item_ID, Item_Name, Item_Price ,YEAR(Date) SalesYear
+  FROM ItemDetails   
+)
+ 
+Select * from itemCTE
+
+-----------------------------------------------------------------------------
+
+Exception Handling :-
+
+Exception is nothing but runtime error
+
+Exception occurs during execution of the program
+
+Exception handling block is used to stop the program from abnormal termination
+
+In SQLServer,Exception handling using TRY..CATCH 
+
+BEGIN TRY
+..
+..
+END TRY
+BEGIN CATCH
+..
+.
+END CATCH
+
+Anything between the BEGIN TRY and END TRY is the code that we want to monitor for an error. So, if an error would have happened inside this TRY statement, the control would have immediately get transferred to the CATCH statement and then it would have started executing code line by line.
+
+ERROR_NUMBER – Returns the internal number of the error
+
+ERROR_STATE – Returns the information about the source
+
+ERROR_SEVERITY – Returns the information about anything from informational errors to errors user of DBA can fix, etc.
+
+ERROR_LINE – Returns the line number at which an error happened on
+
+ERROR_PROCEDURE – Returns the name of the stored procedure or function
+
+ERROR_MESSAGE – Returns the most essential information and that is the message text of the error
+
+USE NEWDB;
+
+BEGIN TRY
+-- Generate a divide-by-zero error  
+  SELECT
+    1 / 0 AS Error;
+END TRY
+BEGIN CATCH
+  SELECT
+    ERROR_NUMBER() AS ErrorNumber,
+    ERROR_STATE() AS ErrorState,
+    ERROR_SEVERITY() AS ErrorSeverity,
+    ERROR_PROCEDURE() AS ErrorProcedure,
+    ERROR_LINE() AS ErrorLine,
+    ERROR_MESSAGE() AS ErrorMessage;
+END CATCH;
+
+BEGIN TRY
+DECLARE @num INT, @msg varchar(200)
+---- Divide by zero to generate Error
+SET @num = 5/0
+PRINT 'This will not execute'
+END TRY
+BEGIN CATCH
+PRINT 'Error occured that is'
+set @msg=(SELECT ERROR_MESSAGE())
+print @msg;
+END CATCH
+
+A TRY..CATCH block combination catches all the errors that have a severity between 11 and 19.
+
+The CATCH block is executed only if there is an error occurs in T-SQL statements within TRY block otherwise the CATCH block is ignored.
+
+Each TRY block is associated with only one CATCH block and vice versa
+
+TRY and CATCH blocks can’t be separated with the GO statement. We need to put both TRY and CATCH blocks within the same batch.
+
+TRY..CATCH blocks can be used with transactions. We check the number of open transactions by using @@TRANCOUNT function in Sql Server.
+
+XACT_STATE function within the TRY..CATCH block can be used to check whether an open transaction is committed or not. It will return -1 if the transaction is not committed else returns 1.
+
+
+============================================================================
+
+Cursor :-
+
+- is nothing but Private SQLArea to process all SQL statements 
+
+- is a handler
+
+- A cursor is a temporary work area created in the system memory when a SQL statement is executed. 
+
+- A cursor can hold more than one row, but can process only one row at a time.
+
+- The set of rows the cursor holds is called the active set.
+
+Declare variables 
+
+Initalize variables
+
+Declare CURSOR statement 
+
+Open Statement  - Open the cursor to begin data processing
+
+Fetching values from cursor
+
+Closing a cursor
+
+DECLARE @name VARCHAR(50) -- database name 
+DECLARE @path VARCHAR(256) -- path for backup files 
+DECLARE @fileName VARCHAR(256) -- filename for backup 
+DECLARE @fileDate VARCHAR(20) -- used for file name 
+
+SET @path = 'C:\Backup\' 
+
+SELECT @fileDate = getdate();
+
+DECLARE db_cursor CURSOR FOR 
+SELECT name 
+FROM MASTER.dbo.sysdatabases 
+WHERE name NOT IN ('master','model','msdb','tempdb') 
+
+OPEN db_cursor  
+FETCH NEXT FROM db_cursor INTO @name  
+
+WHILE @@FETCH_STATUS = 0  
+BEGIN  
+      SET @fileName = @path + @name + '_' + @fileDate + '.BAK' 
+      BACKUP DATABASE @name TO DISK = @fileName 
+
+      FETCH NEXT FROM db_cursor INTO @name 
+END 
+
+CLOSE db_cursor  
+DEALLOCATE db_cursor 
+
+---------------------------------------------------
+
+production.products
+
+product_id
+product_name
+brand_id
+category_id
+model_year
+list_price
+
+---------------------------------------------------
+
+DECLARE 
+    @product_name VARCHAR(MAX), 
+    @list_price   DECIMAL;
+
+DECLARE cursor_product CURSOR
+FOR SELECT 
+        product_name, 
+        list_price
+    FROM 
+        production.products;
+
+OPEN cursor_product;
+
+FETCH NEXT FROM cursor_product INTO 
+    @product_name, 
+    @list_price;
+
+WHILE @@FETCH_STATUS = 0
+    BEGIN
+        PRINT @product_name + CAST(@list_price AS varchar);
+        FETCH NEXT FROM cursor_product INTO @product_name,@list_price;
+   END;
+
+CLOSE cursor_product;
+
+DEALLOCATE cursor_product;
+
+----------------------------------------------
+
+DECLARE contacts_cursor CURSOR FOR
+SELECT contact_id, website_id
+FROM contacts;
+
+OPEN contacts_cursor;
+FETCH NEXT FROM contacts_cursor;
+ 
+WHILE @@FETCH_STATUS = 0
+   BEGIN
+      FETCH NEXT FROM contacts_cursor;
+      PRINT 'Inside WHILE LOOP ';
+   END;
+PRINT 'Done WHILE LOOP on ';
+
+CLOSE contacts_cursor;
+DEALLOCATE contacts_cursor;
+GO
+
+
+declare c2 cursor for select ename,job from emp;
+declare @ename varchar,@job varchar;
+open c2;
+fetch next from c2;
+
+while @@FETCH_STATUS=0
+begin
+fetch next from c2 into @ename,@job;
+print @ename+'  '+@job;
+end;
+close c2;
+deallocate c2;
+
+CREATE TABLE Employee
+(
+ EmpID int PRIMARY KEY,
+ EmpName varchar (50) NOT NULL,
+ Salary int NOT NULL,
+ Address varchar (200) NOT NULL,
+)
+
+
+INSERT INTO Employee VALUES(1,'Mohan',12000,'Noida')
+INSERT INTO Employee VALUES(2,'Pavan',25000,'Delhi')
+INSERT INTO Employee VALUES(3,'Amit',22000,'Dehradun')
+INSERT INTO Employee VALUES(4,'Sonu',22000,'Noida')
+INSERT INTO Employee VALUES(5,'Deepak',28000,'Gurgaon')
+
+SELECT * FROM Employee 
+
+SET NOCOUNT ON
+DECLARE @Id int
+DECLARE @name varchar(50)
+DECLARE @salary int
+ DECLARE cur_emp CURSOR
+STATIC FOR 
+SELECT EmpID,EmpName,Salary from Employee
+OPEN cur_emp
+IF @@CURSOR_ROWS > 0
+ BEGIN 
+ FETCH NEXT FROM cur_emp INTO @Id,@name,@salary
+ WHILE @@Fetch_status = 0
+ BEGIN
+ PRINT 'ID : '+ convert(varchar(20),@Id)+', Name : '+@name+ ', Salary : '+convert(varchar(20),@salary)
+ FETCH NEXT FROM cur_emp INTO @Id,@name,@salary
+ END
+END
+CLOSE cur_emp
+DEALLOCATE cur_emp
+SET NOCOUNT OFF 
+
+===================================================================================

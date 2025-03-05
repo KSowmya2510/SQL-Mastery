@@ -1,0 +1,488 @@
+Front-end Tool
+
+Any GUI (Graphical User Interface)
+
+Any application program (C,C++,Java,.Net,VB,..)
+
+Back-end Tool
+
+Any Database
+
+Data - Collection of information
+
+x
+
+Database - Processing of data / The collection of interrelated data and a set of programs to access the data, this collection of data is called as database
+
+Purpose of database is storage and retrieving
+
+DBMS (Database Management System)
+
+- To maintain small scale data
+
+- To do some calculations
+
+- To analysing the data
+
+- DBMS packages are : Excel,Access,Dbase,...
+
+- In any DBMS package, data will be stored in terms of files only
+
+RDBMS (Relational Database Management System)
+
+- To maintain medium to large scale data
+
+- To organizing the data
+
+- Supports one-to-one,one-to-many,many-to-many relationships
+
+Server	
+	Client1
+	Client2
+	Client3
+	Client4
+	Client5
+	..
+	..
+
+- RDBMS packages are : Oracle,SQLserver,MySQL,DB2,..
+
+- In any RDBMS package, data will be stored in terms of tables only which having collection of rows and columns
+
+Collection of rows is called as TUPLES
+
+SQLServer is one of RDBMS
+
+SQLServer owned by Microsoft
+
+Connecting to Server :-
+
+Authentication modes
+
+	Windows authentication
+
+	- not required to give username,password
+
+	- we can use windows domain details to connecting to server
+
+	- we can have privilege to access entire system level information and server level settings
+
+	SQLserver authentication
+
+	- required to give username,password
+
+	- we can have privilege to access only permitted data
+
+Server Types :-
+
+Database Engine
+
+	- creating databases, database objects
+
+	- working with all the data
+
+Analysis Services
+	
+	- To build datawarehouse concept
+
+Integration Services
+
+	- Importing,Exporting data from other sources / Transforming data from other sources
+
+Reporting Services
+
+	- Generating reports to end user
+
+SQLServerTools :-
+
+SQLServer Management Studio
+
+	- Working with Database Engine Services
+
+Business Intelligence Development Studio
+
+	- Working with Analysis,Integration,Reporting Services
+
+SQLServer Configuration Manager
+
+	- Checking services information
+
+Performance Tools 
+
+	- SQLServer profiler
+
+	- DTA (Database Engine Tuning Advisor)
+
+Start - All Programs - Microsoft SQLServer - SQLServer Management Studio
+
+Databases
+	System Databases
+	Database snapshots
+	User-defined Databases
+		Tables
+		Synonyms
+		views
+		Programmability
+			Stored procedures
+			Functions
+			Triggers
+		Security
+Security
+Server objects
+Replication
+Management
+SQLServer Agent
+
+System Databases will get loaded automatically when we install SQLServer into the machine
+
+System Databases helps to working on system level information and server level settings
+
+System Databases are :
+
+	Master	- helps to creating logins,working with all server level settings
+
+	Model	- helps to working on templates
+
+	MSDB	- helps to working on automation jobs
+
+	TempDB	- helps to working on temporary databases
+
+Creating our own Database :-
+
+- Connect to Database Engine
+
+- In object explorer, Right click on Databases
+
+- Select New Database
+
+- Name the Database
+
+- Click on OK button
+
+Filegroup :-
+
+PRIMARY datafile
+
+	.mdf (master datafile) is an extension for primary datafile
+
+SECONDARY datafile
+
+	.ndf (new datafile) is an extension for secondary datafile
+
+TRANSACTION logfile
+
+	.ldf (log datafile) is an extension for transaction logfile
+
+SQL stands for Structured Query Language
+
+SQL is a common database programming language used by every RDBMS
+
+Purpose of SQL is to communicating with the database / to Querying the database
+
+SQL commands :
+
+DDL (Data Definition Language)
+
+create	- creating databases, database objects
+
+Alter	- modifying an existing table structure
+
+Truncate- to remove all rows from an existing table, table structure will remain
+
+Drop	- To remove an entire table
+
+Database objects are :
+
+Tables
+Synonym
+View
+Procedures
+Function
+..
+..
+
+DML (Data Manipulation Language)
+
+insert	- inserting rows into an existing table
+
+update	- modifying rows in an existing table
+
+delete	- deleting rows from an existing table
+
+SELECT	- To retrieving data from an existing table
+
+DCL (Data Control Language)
+
+grant	- granting all permissions on object to others
+
+revoke	- revertting all permissions on object from others
+
+TCL (Transaction Control Language)
+
+commit	- to save transaction
+
+rollback - to undo transaction
+
+............................................................................
+
+CREATE	- To creating databases, database objects (Tables,Synonyms,Views,Procedures,Functions,...)
+
+create database <databasename>;
+
+use <existing databasename>;
+
+Eg:-
+
+create database GIRIDB;
+
+use GIRIDB;
+
+create table <tablename>(columndefinition1,columndefinition2,...);
+
+columndefinition means columnname datatype
+
+- Tablename / Columnname must be begin with a letter
+
+- Spaces does not allowed
+
+- Underscores can be allowed
+
+Datatypes :-
+
+int
+numeric	- To insert numeric information into the database
+
+Eg:-
+
+sno int;
+
+sno numeric(10);
+
+sal numeric(6,2);
+
+4000.00
+
+sal numeric(6,3);
+
+400.000
+
+sal numeric(7,2);
+
+40000.00
+
+VARCHAR	- To insert characterised information,alpha-numeric characters into the database
+
+Range is 4000 bytes
+
+varchar is a variable length string datatype
+
+Eg:-
+
+sname varchar(20);
+
+'abc','V123',...
+
+CHAR	- To insert fixed length string data into the database
+
+Range is 2000 bytes
+
+char is a fixed length string datatype
+
+Eg:-
+
+sex char(1);
+
+'m','f',...
+
+DATE	- To insert date values into the database
+
+Default size of date datatype in SQLServer is 8 bytes
+
+Default date format in SQLServer is YYYY/MM/DD
+
+Eg:-
+
+hiredate date;
+
+'2013/01/01',...
+
+create table student_details(sno int,sname varchar(15),course varchar(15));
+
+create table employee_details(empno int,ename varchar(15),sex char(1),
+hiredate date,job varchar(15),sal numeric(10,2),deptno int);
+
+create table vendor_master(vencode varchar(5),venname varchar(15),venaddress varchar(20),venmobile numeric(10),ventype varchar(15));
+
+create table order_master(orderno varchar(5),odate date,del_date date,
+o_status char(1),vencode varchar(5));
+
+create table order_detail(orderno varchar(5),qty_ord int,qty_deld int,
+itemcode varchar(5));
+
+create table itemfile(itemcode varchar(5),itemdesc varchar(15),qty_hand int,max_level int,re_level int,itemrate numeric(10,2));
+
+Tablename : Accounts
+
+Accno
+Acc_holdername
+Address
+DOB
+Acc_OpenDate
+Acctype
+Min_Balance
+
+
+Tablename : Customers
+
+Custid
+Custname
+Custtype
+Address
+Mobile
+Work_category
+odate
+del_date
+est_cost
+Adv_Pay
+Balance
+
+
+
+Tablename : Products
+
+Prodid
+Prodname
+Prod_category
+Mfg_Date
+Exp_Date
+Prodcost
+
+Tablename : Doctors
+
+Doctid
+Doctname
+Hospitalname
+Mobile
+Specialization
+Availability
+Consultation_fee
+
+================================================================================
+
+Datatypes :-
+
+bigint		8 bytes
+int		4 bytes
+smallint	2 bytes
+tinyint		0	255	1 byte
+bit		0	1	1 byte/8bit column
+decimal		5 to 17 bytes
+numeric		5 to 17 bytes
+money		8 bytes
+smallmoney	4 bytes
+
+Unicode character string data types
+Unicode character string data types store either fixed-length (nchar) or variable-length (nvarchar) Unicode character data.
+
+Data Type	Lower limit	Upper limit		Memory
+
+nchar		0 chars		4000 chars		2 times n bytes
+nvarchar	0 chars		4000 chars		2 times n bytes + 2 bytes
+ntext		0 chars		1,073,741,823 char	2 times the string length
+
+
+Date & Time data types
+The date and time data types store data and time data, and the date time offset.
+
+Data Type	Storage size	
+
+datetime	8 bytes		
+smalldatetime	4 bytes, fixed	
+date		3 bytes, fixed	
+time		5 bytes		
+datetimeoffset	10 bytes	
+datetime2	6 bytes		
+
+======================================================================
+
+ALTER	- To modify an existing table structure
+
+To add a column :
+
+alter table <tablename> add columnname datatype,columnname datatype;
+
+Eg:-
+
+alter table student_details add tel_no int,address varchar(20),mobile numeric(10);
+
+To modify datatype of a column :
+
+alter table <tablename> alter column column_name data_type;
+
+Eg:-
+
+alter table student_details alter column address varchar(30);
+
+To remove a column :
+
+alter table <tablename> drop column <columnname>;
+
+Eg:-
+
+alter table student_details drop column tel_no;
+
+alter table student_details drop column mobile,address;
+
+To renaming a column :
+
+execute sp_rename 'student_details.course', 'course_details','column';
+
+To renaming a table :
+
+execute sp_rename 'student_details','student';
+
+----------------------------------------------------------------------------------
+
+TRUNCATE - To remove all rows from an existing table,but table structure will remain
+
+truncate table <existing tablename>;
+
+Eg:-
+
+truncate table student;
+
+----------------------------------------------------------------------------------
+
+DROP - To remove an entire table
+
+drop table <existing tablename>;
+
+Eg:-
+
+drop table student;
+
+----------------------------------------------------------------------------------
+
+All DDL commands are automatically commited
+
+==================================================================================
+
+create table Doctors(Doctid varchar(15),Doctname varchar(20),
+Hospitalname varchar(15));
+
+alter table Doctors add Address varchar(20),Mobile int,Consultation int;
+
+alter table Doctors alter column address varchar(30);
+
+exec sp_rename 'Doctors.Doctname','Doctorname','column';
+
+exec sp_rename 'Doctors','Doctor_details';
+
+alter table Doctor_details drop column address;
+
+alter table Doctor_details drop column mobile,consultation;
+
+truncate table Doctor_details;
+
+drop table Doctor_details;
+

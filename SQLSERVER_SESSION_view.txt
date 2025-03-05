@@ -1,0 +1,548 @@
+Database objects:-
+
+Synonym
+
+View
+
+Index
+
+Synonym :-
+
+- aliasname for an entire table
+
+- act like a table
+
+- simplify  SQLstatements
+
+- Hides owner of an object
+
+create synonym <synonymname> for <tablename>;
+
+We can perform all DML operations like insert,update,delete on synonym
+
+Any insertions,updations,deletions takes place on synonym that will be affected base table,base table to synonym
+
+drop synonym <synonymname>;
+
+Eg:-
+
+use newdb;
+
+create synonym esy for emp;
+
+select *from esy;
+
+select * from emp;
+
+insert into esy(empno) values(100);
+
+select empno from esy;
+
+select empno from emp;
+
+delete from emp where empno=100;
+
+select empno from esy;
+
+drop synonym esy;
+
+select empno from emp;
+
+-----------------------------------------------------------------------
+
+VIEW :-
+
+- View is like a window
+
+- View is a tailored presentation of the data contained in one ore more tables
+
+- View does not have data of its own
+
+- View takes the output from query
+
+- View is called as STORED QUERY / VIRTUAL TABLE
+
+- View provides additional level of table security
+
+- View simplify commands to us, to get information from multiple tables without knowing how to perform join
+
+create view <viewname> as select statement;
+
+drop view <viewname>;
+
+			Simple View	Complex View
+
+No Of Tables		One		One or More
+
+Having Functions	No		Yes
+
+Groups of data		No		Yes
+
+DML through view	Yes		Not Always
+
+We can perform all DML operations like insert,update,delete on simple view
+
+Any insertions,updations,deletions takes place on simple view that will be affected base table,base table to simple view
+
+We cannot perform DML operations like insert,update,delete on view ,if view having functions,clauses,....
+
+Just we can write SELECT statement to view the data
+
+Eg:
+
+create view emp_view as select * from emp;
+
+select * from emp_view;
+
+select * from emp;
+
+insert into emp_view(empno) values(100);
+
+select empno from emp_view;
+
+select empno from emp;
+
+delete from emp where empno=100;
+
+select empno from emp_view;
+
+drop view emp_view;
+
+select empno from emp;
+
+create view dept_sum_v(name,minsal,maxsal)
+as select d.dname,min(e.sal),max(e.sal)
+from emp e inner join dept d on e.deptno = d.deptno
+group by d.dname;
+
+select * from dept_sum_v;
+
+delete from dept_sum_v;
+
+drop view dept_sum_v;
+
+------------------------------------------------------------------
+
+INDEX :-
+
+- Database object/Schema object
+
+- Used and Maintained by Server implicitly
+
+- Used to improve performance of SELECT queries
+
+CLUSTERED INDEX
+
+	- creating on PRIMARY KEY column in a table
+
+	- only one CLUSTERED INDEX per table
+
+	- A table can have only one PRIMARY KEY
+
+NON-CLUSTERED INDEX
+
+	- creating on UNIQUE constraint column in a table
+
+	- We can have more than one non-clustered index per table
+
+FULL-TEXT index
+
+	- creating on text datatype column in a table
+
+XML index
+	
+	-creating on xml datatype column in a table
+
+select * from sysindexes;
+
+select * from sysobjects;
+
+When we drop an entire table then corresponding table properties also be dropped automatically
+
+===================================================
+
+SECURITY
+
+System level Security
+
+	logins
+
+Database level Security
+	
+	Schemas
+
+	Users
+
+Logins :-
+
+Databases
+Security
+	logins
+
+-Right click on logins
+
+-Select New login
+
+-Name the login
+
+-Select SQLServer authentication
+
+	Password:
+	Confirm Password :
+
+-Default Database :Master
+
+- Click on OK button
+
+========================================================
+
+SCHEMA :-
+
+- Schema is a collection of objects
+
+- Schema objects are : Tables,Synonym,Views,procedures,functions,..
+
+- Schema avoids naming conflict problem for database objects
+
+select columnlist from databasename.schemaname.objectname;
+
+select columnlist from servername.databasename.schemaname.objectname;
+
+Two types of schemas, they are
+
+Default schema
+	
+	dbo
+
+Named schema
+
+	We can name of its own
+
+- Granting all permissions like insert,update,delete,select on schema to other users, instead of individual object level
+
+grant all on schema :: schemaname to <others>;
+
+all - insert,update,delete
+
+:: - scope resolution operator
+
+Creating our own schema :-
+
+Databases
+	Programmability
+	Security
+		Schemas
+
+- Right click on schemas
+
+- Select New schema
+
+- Name the Schema
+
+-Schema owner
+
+-Click on OK button
+
+Every schema should have schema owner / database owner
+
+Here we have built-in schema owners / database owners, i.e
+
+dbo
+sys
+guest
+INFORMATION_SCHEMA
+db_owner
+.
+.
+
+create schema <schemaname>
+authorization schema_owner;
+
+drop schema <schemaname>;
+
+Eg:-
+
+select * from newdb.dbo.employees;
+
+use newdb;
+
+select * from employees;
+
+create table employees(hiredate date);
+
+create table HR.employees(hiredate date);
+
+insert into HR.employees values('2013/01/01');
+
+select * from HR.employees;
+
+select * from employees;
+
+delete from HR.employees;
+
+drop table HR.employees;
+
+drop schema HR;
+
+create schema HR
+authorization dbo;
+
+create table HR.employees(hiredate date,comm int);
+
+insert into HR.employees values(getdate(),300);
+
+select * from HR.employees;
+
+select * from employees;
+
+delete from HR.employees;
+
+drop table HR.employees;
+
+drop schema HR;
+
+--------------------------------------------------------
+
+USERS :-
+
+Databases
+	Security
+		Users
+
+-Right click on users
+
+-Select New user
+
+-Name the user:
+
+-usertype
+	SQLUser with login :Here login details is required to give
+	
+	SQLUser without login :Here login details not required
+
+-Default schema:
+
+-Click on OK button
+
+create user <username>
+for login <loginname>
+with default_schema=schemaname;
+
+drop user <username>;
+
+Eg:
+
+create user USER1
+for login TOLLPLUS
+with default_schema=dbo;
+
+drop user user1;
+
+=======================================================
+
+NORMALIZATION :-
+
+Key Attributes and Non-Key Attributes
+
+Types of Relationships
+
+Normalization
+
+Normal Forms
+
+Key Attribute is PRIMARY KEY
+
+PRIMARY KEY does not allows both duplicate data and null values
+
+A table can have only one PRIMARY KEY
+
+All Non-key Attributes that depends on Key Attribute
+
+______________________________________
+(PK)
+EMPID	ENAME	JOB	SAL	DEPTNO
+______________________________________
+
+
+
+
+______________________________________
+....	..........................
+K		NK
+
+Types of Relationships :-
+
+One-to-One
+
+One-to-Many
+
+Many-to-Many
+
+Normalization :-
+
+- To reduce the redundancy(repeate data / duplicate data)
+
+- To simplify all dependancies
+
+- To represent data in simplest way
+
+Normal Forms:-
+
+Unnormalized form
+
+|
+
+1stNF
+
+|
+
+2ndNF
+
+|
+
+3rdNF
+
+|
+
+4th NF
+|
+
+5th NF
+
+__________________________________________
+
+PID	PNAME	EMPID	ENAME	RC	HR
+__________________________________________
+
+1000	BANKING	1	AAA	W	40
+
+		2	BBB	X	50
+
+		3	CCC	Y	60
+..........................................	1st Row
+
+2000	WEB	2	BBB	X	50
+
+		4	DDD	Z	70
+__________________________________________	2nd Row
+
+This table is in unnormalized form
+
+- identify multi-valued attributes
+
+- identify redundancy (repeated data / duplicate data)
+
+To simplify these we go for 1st NF
+
+By giving fixed length record we simplify multi-valued attributes
+
+__________________________________________
+
+PID	PNAME	EMPID	ENAME	RC	HR
+__________________________________________
+
+1000	BANKING	1	AAA	W	40
+
+1000	BANKING	2	BBB	X	50
+
+1000	BANKING	3	CCC	Y	60
+
+2000	WEB	2	BBB	X	50
+
+2000	WEB	4	DDD	Z	70
+__________________________________________	
+
+By imposing key Attribute (PRIMARY KEY) we simplify redundancy
+
+__________________________________________
+(pk)		(pk)
+PID	PNAME	EMPID	ENAME	RC	HR
+__________________________________________
+
+1000	BANKING	1	AAA	W	40
+
+1000	BANKING	2	BBB	X	50
+
+1000	BANKING	3	CCC	Y	60
+
+2000	WEB	2	BBB	X	50
+
+2000	WEB	4	DDD	Z	70
+__________________________________________
+....	....	....	...	....	..
+K	NK	K	NK	NK	NK
+
+This table is in 1st NF
+
+- identify partial dependancy
+
+partial dependancy means , a non-key attribute that depends on part of key attribute
+
+To simplify partial dependancy we go for 2nd NF
+
+______________		_______________
+(pk)	(pk)		(pk)
+PID	EMPID		PID	PNAME
+_____________		_______________
+
+			1000	BANKING
+
+			2000	WEB
+_____________		_______________
+			...	....
+			K	NK
+
+			This table is in 2nd NF,3rd NF,...
+
+______________________________
+(pk)
+EMPID	ENAME	RC	HR	
+______________________________
+
+1	AAA	W	40
+
+2	BBB	X	50
+
+3	CCC	Y	60
+
+4	DDD	Z	70
+______________________________
+...	...	....	..
+K	NK	NK	NK
+
+This table is in 2nd NF
+
+- identify transitive dependancy
+
+transitive dependancy means, a non-key attribute that depends on another non-key attribute
+
+To simplify transitive dependancy we go for 3rd NF
+
+_____________
+
+RC	HR
+____________
+
+W	40
+
+X	50
+
+Y	60
+
+Z	70
+_____________
+
+______________		________________________		____________
+(pk)			(pk)
+PID	PNAME		EMPID	ENAME	RC	HR		RC	HR
+_____________		__________________________		_____________
+
+1000	Banking		1	AAA	W	40		W	40
+
+2000	WEB		2	BBB	X	50		X	50
+______________
+			3	CCC	Y	60		Y	60
+
+			4	DDD	Z	70		Z	70
+			__________________________		_____________
+

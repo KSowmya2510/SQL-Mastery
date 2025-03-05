@@ -1,0 +1,660 @@
+use newdb;
+
+select table_name,column_name,data_type
+from INFORMATION_SCHEMA.COLUMNS
+where TABLE_NAME='emp'
+
+==========================================================
+
+Aggregate Functions :-
+
+min()
+
+max()
+
+sum()
+
+avg()
+
+count()
+
+EMPNO	ENAME	JOB		MGR	HIREDATE	SAL	COMM	DEPTNO
+-----	-----	--------	-----	----------	------	-----	------
+7369	SMITH	CLERK		7902	1980-12-17	800.00	NULL	20
+7499	ALLEN	SALESMAN	7698	1981-02-20	1600.00	300.00	30
+7521	WARD	SALESMAN	7698	1981-02-22	1250.00	500.00	30
+7566	JONES	MANAGER		7839	1981-04-02	2975.00	NULL	20
+7654	MARTIN	SALESMAN	7698	1981-09-28	1250.00	1400.00	30
+7698	BLAKE	MANAGER		7839	1981-05-01	2850.00	NULL	30
+7782	CLARK	MANAGER		7839	1981-06-09	2450.00	NULL	10
+7788	SCOTT	ANALYST		7566	1982-12-09	3000.00	NULL	20
+7839	KING	PRESIDENT	NULL	1981-11-17	5000.00	NULL	10
+7844	TURNER	SALESMAN	7698	1981-09-08	1500.00	0.00	30
+7876	ADAMS	CLERK		7788	1983-01-12	1100.00	NULL	20
+7900	JAMES	CLERK		7698	1981-12-03	950.00	NULL	30
+7902	FORD	ANALYST		7566	1981-12-03	3000.00	NULL	20
+7934	MILLER	CLERK		7782	1982-01-23	1300.00	NULL	10
+
+
+select min(sal),max(sal) from emp;
+
+select min(sal) "Min Salary",max(sal) "MaxSalary" from emp;
+
+select sum(sal) "Total Salary",avg(sal) "Avg Salary" from emp;
+
+select count(*) "No Of Rows" from emp;
+
+select min(sal) "Min Salary",max(sal) "Max Salary" from emp where deptno=10;
+
+select sum(sal) "Total Salary",avg(sal) "Avg Salary" from emp where job='CLERK';
+
+select count(*) "No Of Rows" from emp where deptno=20;
+
+select * from emp where deptno=10;
+
+select * from emp where deptno=20;
+
+select * from emp where deptno=30;
+
+select min(sal) "Min Salary",max(sal) "Max Salary",sum(sal) "total Salary",avg(sal) "Avg Salary",count(*) "No of rows"from emp;
+
+-----------------------------------------------------
+
+
+GROUP BY clause - To creating subgroups
+
+select columnlist,group_function(columnname)
+from tablename
+group by columnlist;
+
+Eg:-
+
+Display Minimum salary,maximum salary for each department
+
+select deptno,min(sal) "Min Salary",max(sal) "Max Salary"
+from emp
+group by deptno;
+
+10	1300.00	5000.00
+20	800.00	3000.00
+30	950.00	2850.00
+
+Display Total Salary,average salary for each department
+
+select deptno,sum(sal) "total Salary",avg(sal) "avg Salary"
+from emp
+group by deptno;
+
+10	8750.00		2916.666666
+20	10875.00	2175.000000
+30	9400.00		1566.666666
+
+Display Average Salary for each department without listing them
+
+select avg(sal) "Avg Salary"
+from emp
+group by deptno;
+
+2916.666666
+2175.000000
+1566.666666
+
+Display No Of Managers without listing them
+
+select count(distinct mgr) "No Of Managers" from emp;
+
+6
+
+Display No Of People for each department
+
+select deptno,count(*) "No Of People"
+from emp
+group by deptno;
+
+10	3
+20	5
+30	6
+
+Display No Of People for each job title
+
+select job,count(job) "No OfPeople"
+from emp
+group by job;
+
+ANALYST		2
+CLERK		4
+MANAGER		3
+PRESIDENT	1
+SALESMAN	4
+
+Display Total Salary for each job title
+
+select job,sum(sal) "Total Salary"
+from emp
+group by job;
+
+ANALYST		6000.00
+CLERK		4150.00
+MANAGER		8275.00
+PRESIDENT	5000.00
+SALESMAN	5600.00
+
+Display Total Salary for each job title with excluding SALESMAN
+
+select job,sum(sal) "total Salary"
+from emp
+where job<>'SALESMAN'
+group by job;
+
+select job,sum(sal) "Total Salary"
+from emp 
+where job not in('SALESMAN')
+group by job;
+
+select job,sum(sal) "Total Salary"
+from emp
+where job not like 'SALES%'
+group by job;
+
+ANALYST		6000.00
+CLERK		4150.00
+MANAGER		8275.00
+PRESIDENT	5000.00
+
+select job,sum(sal) "Total Salary"
+from emp
+where job not in('SALESMAN','ANALYST') 
+group by job;
+
+Display Average Salaries for each job title
+
+select job,avg(sal) "Avg Salary"
+from emp
+group by job;
+
+ANALYST		3000.000000
+CLERK		1037.500000
+MANAGER		2758.333333
+PRESIDENT	5000.000000
+SALESMAN	1400.000000
+
+............................................................
+
+HAVING clause :- To restricting group results
+
+select columnlist,group_function(columnname)
+from tablename
+group by columnlist
+having group_by_expression;
+
+Eg:-
+
+Display Total Salaries for each job title , whose total salary is greater than 5000
+
+select job,sum(sal) "Total Salary"
+from emp
+group by job
+having sum(sal)>5000;
+
+select job,sum(sal) "total Salary"
+from emp
+where sum(sal)>5000;
+
+Msg 147, Level 15, State 1, Line 85
+An aggregate may not appear in the WHERE clause unless it is in a subquery contained in a HAVING clause or a select list, and the column being aggregated is an outer reference.
+
+select job,sum(sal) "Total Salary"
+from emp
+having sum(sal)>5000;
+
+Msg 8120, Level 16, State 1, Line 89
+Column 'emp.JOB' is invalid in the select list because it is not contained in either an aggregate function or the GROUP BY clause.
+
+select job,sum(sal) "TotalSalary"
+from emp
+group by job
+having sum(sal)>5000;
+
+ANALYST		6000.00
+MANAGER		8275.00
+SALESMAN	5600.00
+
+Display Total Salary for each job title, whose Total Salary is greater than 5000 with excluding SALESMAN
+
+select job,sum(sal) "Total Salary"
+from emp
+where job not in('SALESMAN')
+group by job
+having sum(sal)>5000;
+
+select job,sum(sal) "Total Salary"
+from emp
+where job not like 'SALES%'
+group by job
+having sum(sal)>5000;
+
+ANALYST	6000.00
+MANAGER	8275.00
+
+Display Average Salaries for each job title whose average salary is greater than 2500
+
+select job,avg(sal) "AvgSalary"
+from emp
+group by job
+having avg(sal)>2500;
+
+ANALYST		3000.000000
+MANAGER		2758.333333
+PRESIDENT	5000.000000
+
+...............................................................
+
+ORDER BY clause - To arrange information either in ascending order / descending order
+
+select columnlist from tablename order by columnname asc/desc;
+
+asc - ascending order
+
+desc - descending order
+
+Eg:-
+
+select ename from emp order by ename;
+
+select ename,job from emp order by job desc;
+
+select job,sum(sal) "Total Salary"
+from emp
+where job not like 'SALES%'
+group by job
+having sum(sal)>5000
+order by job desc;
+
+select job,avg(sal) "Avg Salary"
+from emp
+group by job
+having avg(sal)>2500
+order by avg(sal) asc;
+
+----------------------------------
+
+Order Of Precedence of clauses :
+
+FROM clause
+
+WHERE clause
+
+GROUP BY clause
+
+HAVING clause
+
+ORDER BY clause
+..........................................................................
+
+Questions :
+
+1.How to connect to SQLServer
+
+2.When will you use SQLServer authentication
+
+3.What are server types , its uses
+
+4.What are sQLServer Tools
+
+5.What are system databases
+
+6.Write a Query to List all tables in an existing database
+
+7.Write a Query to Describe table structure
+
+8.What are differences between VARCHAR,nVARCHAR and CHAR
+
+9.What are differences between TRUNCATE,DELETE,DROP
+
+10.Find each employee experience in terms of no.of years,no.of months,no.of days
+
+11.What is the filegroup for each database
+
+12.Which operator is faster "in" or "exists" operator
+
+13.What is the order of precedence of clauses
+
+14.Write a Query to check filegroup of each database
+
+15.Is it possible to create a table using SELECT statement,write a Query
+
+======================================================================
+
+EXERCISE :-
+
+1.Display the highest,lowest ,sum and average salary of all employees
+
+select min(sal) "Min Salary",max(sal) "Max Salary",sum(sal) "Total Salary",avg(sal)  "AvgSalary" from emp;
+
+2.Display the minimum,maximum,sum and average salary for each job type
+
+select min(sal) "Min Salary",max(sal) "Max Salary",sum(sal) "Total Sal",avg(sal) "Avg Salary" from emp group by job;
+
+3.Write a query to display the no.of people with same job
+
+select job,count(*) "No Of People"
+from emp
+group by job;
+
+4.Determine the no.of managers without listing them
+
+select count(distinct mgr) "No Of Managers" from emp;
+
+5.Write a query that will display the difference between the highest and lowest salary
+
+select max(sal) - min(sal) from emp;
+
+6.Display manager number and the salary of the lowest paid employee for their manager.Exclude anyone whose manager is not known.Exclude any groups where the minimum salary is less than 1000
+
+select mgr,min(sal)
+from emp
+where mgr is not null
+group by mgr
+having min(sal)<1000;
+
+7.Create a query that will display total no.of employees and of that total no. who were hired in 1980,1981,1982
+
+select datename("YYYY",hiredate),count(*)
+from emp
+where datename("YYYY",hiredate) not in(1983)
+group by datename("YYYY",hiredate);
+
+8. Display job,salary of that job based on department number and the total salary for that job for all departments
+
+select job,deptno,sum(sal) "Total Salary"
+from emp
+group by job,deptno;
+
+===================================================================================
+
+Table :Address
+
+AddressID		int
+AddressLine1		nvarchar
+AddressLine2		nvarchar
+City			nvarchar
+StateProvinceID		int
+PostalCode		nvarchar
+SpatialLocation		geography
+rowguid			uniqueidentifier
+ModifiedDate		datetime
+
+
+1. Write a query that displays in the "AddressLine1 (City PostalCode)" format from the 
+Person.Address table. 
+
+SELECT AddressLine1 + ' (' + City + ' ' + PostalCode + ')' 
+FROM Person.Address; 
+
+2. Write a query using the Production.Product table displaying the product ID, color, and name 
+columns. If the color column contains a NULL value, replace the color with No Color. 
+
+SELECT ProductID, ISNULL(Color,'No Color') AS Color, Name 
+FROM Production.Product; 
+
+3. Modify the query written in question 2 so that the description of the product is displayed in the 
+"Name: Color" format. Make sure that all rows display a value even if the Color value is missing. 
+
+SELECT ProductID, Name + ISNULL(': ' + Color,'') AS Description 
+FROM Production.Product; 
+
+4. Write a query using the Production.Product table displaying a description with the "ProductID: 
+Name" format. Hint: You will need to use a function to write this query.  
+
+SELECT CAST(ProductID AS VARCHAR) + ': ' + Name AS IDName 
+FROM Production.Product; 
+
+SELECT CONVERT(VARCHAR, ProductID) + ': ' + Name AS IDName 
+FROM Production.Product; 
+
+5. Explain the difference between the ISNULL and COALESCE functions. 
+
+You can use ISNULL to replace a NULL value or column with another value or column. You can use 
+COALESCE to return the first non-NULL value from a list of values or columns.
+
+=======================================================================
+
+1. Write a query that displays the first 10 characters of the AddressLine1 column in the Person.Address table. 
+
+SELECT LEFT(AddressLine1,10) AS Address10 
+FROM Person.Address; 
+
+SELECT SUBSTRING(AddressLine1,1,10) AS Address10 
+FROM Person.Address; 
+
+2. Write a query that displays characters 10 to 15 of the AddressLine1 column in the Person.Addresstable. 
+
+SELECT SUBSTRING(AddressLine1,10,6) AS Address10to15 
+FROM Person.Address; 
+
+3. Write a query displaying the first name and last name from the Person.Person table all in uppercase. 
+
+SELECT UPPER(FirstName) AS FirstName, UPPER(LastName) AS LastName 
+FROM Person.Person; 
+
+4. The product number in the Production.Product contains a hyphen (-). Write a query that uses the 
+SUBSTRING function and the CHARINDEX function to display the characters in the product number 
+following the hyphen. Note: there is also a second hyphen in many of the rows; ignore the second 
+hyphen for this question. Hint: Try writing this statement in two steps, the first using the 
+CHARINDEX function and the second adding the SUBSTRING function. 
+
+--Step 1 
+
+SELECT ProductNumber, CHARINDEX('-',ProductNumber) 
+FROM Production.Product; 
+
+--Step 2 
+
+SELECT ProductNumber, 
+SUBSTRING(ProductNumber,CHARINDEX('-',ProductNumber)+1,25) AS ProdNumber 
+FROM Production.Product;
+
+------------------------------------------
+
+1. Write a query that calculates the number of days between the date an order was placed and the 
+date that it was shipped using the Sales.SalesOrderHeader table. Include the SalesOrderID, 
+OrderDate, and ShipDate columns. 
+
+SELECT SalesOrderID, OrderDate, ShipDate, 
+DATEDIFF(d,OrderDate,ShipDate) AS NumberOfDays 
+FROM Sales.SalesOrderHeader; 
+
+2. Write a query that displays only the date, not the time, for the order date and ship date in the 
+Sales.SalesOrderHeader table. 
+
+--Use any of the styles that return only date 
+
+SELECT CONVERT(VARCHAR,OrderDate,1) AS OrderDate, 
+CONVERT(VARCHAR, ShipDate,1) AS ShipDate 
+FROM Sales.SalesOrderHeader; 
+
+3. Write a query that adds six months to each order date in the Sales.SalesOrderHeader table. 
+Include the SalesOrderID and OrderDate columns. 
+
+SELECT SalesOrderID, OrderDate, DATEADD(m,6,OrderDate) Plus6Months 
+FROM Sales.SalesOrderHeader; 
+
+4. Write a query that displays the year of each order date and the numeric month of each order date 
+in separate columns in the results. Include the SalesOrderID and OrderDate columns. 
+
+SELECT SalesOrderID, OrderDate, YEAR(OrderDate) AS OrderYear, 
+MONTH(OrderDate) AS OrderMonth 
+FROM Sales.SalesOrderHeader; 
+
+SELECT SalesOrderID, OrderDate, DATEPART(yyyy,OrderDate) AS OrderYear, 
+DATEPART(m,OrderDate) AS OrderMonth 
+FROM Sales.SalesOrderHeader; 
+
+5. Change the query written in question 4 to display the month name instead. 
+SELECT SalesOrderID, OrderDate, DATEPART(yyyy,OrderDate) AS OrderYear, 
+DATENAME(m,OrderDate) AS OrderMonth 
+FROM Sales.SalesOrderHeader; 
+
+========================================================================================
+
+1. Display the maximum, minimum and average salary and commission earned.
+
+SELECT max(sal), min(sal), avg(sal), max(comm), min(comm), avg(comm) FROM emp;
+
+2. Display the department number, total salary payout and total commission payout for each department.
+
+SELECT deptno, sum(sal), sum(comm) FROM emp GROUP BY deptno;
+
+3. Display the department number, total salary payout and total commission payout for each department that pays at least one employee commission.
+
+SELECT deptno, sum(sal), sum(comm) FROM emp GROUP BY deptno HAVING sum(comm) > 0;
+
+4. Display the department number and number of clerks in each department.
+
+SELECT deptno, count(job) FROM emp WHERE job = 'CLERK' GROUP BY deptno;
+
+5. Display the department number and total salary of employees in each department that employs four
+or more people.
+
+SELECT deptno, sum(sal) FROM emp GROUP BY deptno HAVING count(empno) >= 4;
+
+6. Display the employee number of each employee who manages other employees with the number of
+people he or she manages.
+
+SELECT mgr, count(mgr) FROM emp WHERE mgr IS NOT NULL GROUP BY mgr;
+
+===================================================================================
+
+
+CASE statement:-
+
+select deptno,case deptno
+when 10 then 'TEN'
+when 20 then 'TWENTY'
+when 30 then 'THIRTY'
+else 'UNKNOWN'
+end
+from dept;
+
+select distinct job,case job
+when 'PRESIDENT' then 'A'
+when 'ANALYST' then 'B'
+when 'MANAGER'then 'C'
+when 'CLERK' then 'D'
+else 'O'
+end
+from emp;
+
+select sal,case sal
+when 800 then 'Low'
+when 2850 then 'Medium'
+else 'High'
+end
+from emp;
+
+======================================================================
+
+CONSTRAINTS :-
+
+-Set of rules
+
+-To reduce the redundancy(repeated data / duplicate data)
+
+-To prevent invalid data entry into the table
+
+Here we have two types of constraints, they are
+
+Column level constraints and Table level constraints
+
+Column level constraints imposes on a column or a group of columns in a table
+
+Column level constraints are :Domain and Entity integrity constraints
+
+Domain integrity constraints are : not null and check constraint
+
+Entity integrity constraints are : unique and primary key constraint
+
+Table level constraint imposes on more than one table, to establish parent-child relationship
+
+Table level constraint is a Referential integrity constraint i.e foreign key
+
+foreign key maintains relationship with either unique constraint or primary key
+
+NOT NULL :-By default table allows null values, when a not null constraint is enforced on a column or a group of columns then table does not allow null value
+
+null is a system unknown value / unsigned value / unavailability value
+zero is not equivalent to null value
+
+create table <tablename>(columndefinition1 constraint <constraintname> <type of constraint>,columndefinition2,...);
+
+Here constraint and constraintname is optional
+
+To remove a constraint from an existing table:
+
+alter table <tablename>drop constraint <constraintname>;
+
+Eg:
+
+create table emp_nt(empno int not null,ename varchar(15),
+job varchar(15),sal numeric(10,2),deptno int);
+
+insert into emp_nt values(null,'aa','bb',1000,10);
+
+Msg 515, Level 16, State 2, Line 159
+Cannot insert the value NULL into column 'empno', table 'NEWDB.dbo.emp_nt'; column does not allow nulls. INSERT fails.
+The statement has been terminated.
+
+insert into emp_nt values(101,null,'cc',2000,20);
+
+select * from emp_nt;
+
+drop table emp_nt;
+
+.................................................................
+
+CHECK constraint :-
+
+create table <tablename>(columndefinition1 constraint <constraintname> <type of constraint>(columnname along with the condition),columndefinition2,...);
+
+Here constraint and constraintname is optional
+
+To add a constraint for an existing table :
+
+alter table <tablename> add constraint <constraintname> <type of constraint>(columnname along with the condition);
+
+To remove a constraint from an existing table :
+
+alter table <tablename>drop constraint <constraintname>;
+
+Eg:-
+
+create table emp_chk(empno int not null,ename varchar(15),
+job varchar(15),sal numeric(10,2) constraint c1 check(sal<1000),
+deptno int);
+
+insert into emp_chk values(100,'aa','bb',1000,10);
+
+Msg 547, Level 16, State 0, Line 173
+The INSERT statement conflicted with the CHECK constraint "c1". The conflict occurred in database "NEWDB", table "dbo.emp_chk", column 'sal'.
+The statement has been terminated.
+
+insert into emp_chk values(100,'aa','bb',950,10);
+
+select * from emp_chk
+
+alter table emp_chk drop constraint c1;
+
+insert into emp_chk values(101,'bb','cc',1250,20);
+
+select * from emp_chk;
+
+alter table emp_chk add constraint c2 check(sal>1500);
+
+Msg 547, Level 16, State 0, Line 185
+The ALTER TABLE statement conflicted with the CHECK constraint "c2". The conflict occurred in database "NEWDB", table "dbo.emp_chk", column 'sal'.
+
+delete from emp_chk;
+
+alter table emp_chk add constraint c2 check(Sal>1500);
+
+drop table emp_chk;

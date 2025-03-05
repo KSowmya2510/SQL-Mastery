@@ -1,0 +1,511 @@
+DML (Data Manipulation Language)
+
+insert	- inserting rows into an existing table
+
+update	- modifying rows in an existing table
+
+delete	- deleting rows from an existing table
+
+insert :-
+
+insert into <tablename> values(values of the columns...);
+
+Eg:-
+
+create table employees(empno int,ename varchar(15),job varchar(20),sal numeric(10,2),deptno int);
+
+insert into employees values(100,'kumar','consultant',1000,10);
+
+insert into employees values(101,'satish','Sr.Consultant',2000,20),(102,'visu','Developer',1950,20);
+
+If we want to inserting rows for selected columns in an existing table then we specify columnlist before keyword "values"
+
+insert into <tablename>(columnlist) values(values of the columns...);
+
+Eg:-
+
+insert into employees(empno,job,deptno) values(103,'Executive',30);
+
+insert into employees(ename,sal) values('NAG',2850);
+
+insert into employees(empno,deptno) values(104,40);
+
+When we inserted rows for selected columns in an existing table then rest of columns will be taking null values automatically
+
+null is a system unknown value /unsigned value / unavailability value
+
+zero is not equivalent to null value
+
+insert into employees values(null,'madan',null,950,50);
+
+...................................................................................
+
+UPDATE	- To modify rows in an existing table
+
+update <tablename> set columnname = value;
+
+Eg:-
+
+update employees set empno=100;
+
+The above query modifying all rows in an existing table
+
+To modify selected rows in an existing table then we write "where" clause
+
+update <tablename> set columnname = value where <condition>;
+
+eg:-
+
+update employees set empno=101 where ename='satish';
+
+update employees set empno=102 where job='Developer';
+
+update employees set empno=103,ename='RAJA',sal=800 where deptno=30;
+
+update employees set ename='NAREN' where ename is null;
+
+update employees set sal=3000 where deptno=10;
+
+...................................................................................
+
+DELETE	- To delete rows from an existing table
+
+delete from <existing tablename>;
+
+Eg:-
+
+delete from employees;
+
+The above query deleting all rows from an existing table
+
+To delete selected rows from an existing table then we write "where" clause
+
+delete from <existing tablename> where <condition>;
+
+Eg:-
+
+delete from employees where empno=101;
+
+delete from employees where job='Executive';
+
+delete from employees where deptno is null;
+
+-----------------------------------------------------------------------------------
+
+TRUNCATE						DELETE
+
+DDL command						DML command
+
+All Rows are deleted					All Rows are deleted
+
+Auto commited						Explicitly commited
+
+Rows cannot be rollback					Rows can be rollback before 							commit
+
+Can't have where clause to delete selected rows		Can have where clause to 							delete selected rows
+
+Eg:							Eg:
+
+truncate table T1;					delete from T1;
+
+							delete from T1 where 							sno=10;
+
+===================================================================================
+
+DEFAULT keyword - To assign some value to the column
+
+create table T1(sno int default 10,sname varchar(15));
+
+insert into T1(sname) values('AA');
+
+insert into T1 values(11,'BB');
+
+insert into T1(sname) values('CC');
+
+insert into T1 values(12,'DD');
+
+insert into T1(sname) values('EE');
+
+select * from T1;
+
+10	AA
+11	BB
+10	CC
+12	DD
+10	EE
+
+---------------------------------------------------------------------------
+
+IDENTITY keyword :- To generate unique sequential integer values
+
+identity(1,1) - starts with 1, increment by 1
+
+identity(1,2) - starts with 1, increment by 2
+
+identity(2,1) - starts with 2, increment by 1
+
+identity(2,2) - starts with 2, increment by 2
+
+......
+..
+
+create table T2(sno int identity(1,1),sname varchar(15));
+
+insert into T2(sname) values('AA');
+
+insert into T2(sname) values('BB');
+
+insert into T2(sname) values('CC');
+
+insert into T2(sname) values('DD');
+
+insert into T2(sname) values('EE');
+
+insert into T2 values(6,'FF');
+
+Msg 8101, Level 16, State 1, Line 59
+An explicit value for the identity column in table 'T2' can only be specified when a column list is used and IDENTITY_INSERT is ON.
+
+insert into T2(sname) values('FF'),('GG'),('HH');
+
+select * from T2;
+
+1	AA
+2	BB
+3	CC
+4	DD
+5	EE
+
+create table T3(sno int identity(1,2),sname varchar(15));
+
+insert into T3(sname) values('AA');
+
+insert into T3(sname) values('BB');
+
+insert into T3(sname) values('CC');
+
+insert into T3(sname) values('DD');
+
+insert into T3(sname) values('EE');
+
+select * from T3;
+
+1	AA
+3	BB
+5	CC
+7	DD
+9	EE
+
+==============================================================================
+
+SELECT - To retrieving data from an existing table
+
+select columnlist from <existing tablename>;
+
+select columnlist from <existing tablename> where <condition>;
+
+Eg:-
+
+select * from emp;
+
+select * from emp where deptno=10;
+
+Here * means all column information
+
+select empno,ename,job,sal,deptno from emp;
+
+select empno,ename,job,sal,deptno from emp where job='CLERK';
+
+ALIASNAME - alternate name for an existing column in a table,aliasname hides actual name of the column in a table
+
+select columnname  <aliasname> from <existing tablename>;
+
+Eg:-
+
+select empno eno,ename en,job j,sal from emp;
+
+select empno "Employee Number",ename "Employee Name" from emp;
+
+select empno as "Employee Number",ename as "Employee Name" from emp;
+
+DISTINCT clause :- To display distinct values
+
+select distinct columnname from <existing tablename>;
+
+Eg:-
+
+select job,deptno from emp;
+
+select distinct job from emp;
+
+select distinct deptno from emp;
+
+...................................................................................
+
+OPERATORS :-
+
+Concatenation operator   +
+
+which helps to merge more than one string into a single expression
+
+select 'abc'+'xyz';
+
+select ename+job from emp;
+
+select ename+'    Working    as  '+job from emp;
+
+select cast(empno as char)+job from emp;  --cast() function converts int to char
+
+Arithmetic operators :-
+
++	Addition
+
+-	Subtraction
+
+*	Multiplication
+
+/	Division
+
+select 2*5/2+10*8/2+10-5;
+
+select sal,comm,sal+comm,sal*12,sal*15/100 from emp;
+
+select sal,comm,sal+comm "Net Salary",sal*12 "Annual Salary",sal*15/100 "Hike" from emp;
+
+Relational Operators :-
+
+<	less than
+
+>	greater than
+
+<=	less than or equal to
+
+>=	greater than or equal to
+
+=	Equal to
+
+<>	Not equal to
+
+Logical operators :-
+
+and				or		not
+
+Cond1	Cond2	Result
+
+T	T	T		T F T		T F
+
+T	F	F		F T T		F T
+
+F	T	F		F F F
+
+F	F	F		T T T
+
+Comparison operators :-
+
+in - searching for specific value in the given list
+
+between..and - for range of values
+
+like - for pattern matching
+
+==================================================================================
+
+select * from emp;
+
+EMPNO	ENAME	JOB		MGR	HIREDATE	SAL	COMM	DEPTNO
+-----	-----	--------	-----	----------	-----	------	----
+7369	SMITH	CLERK		7902	1980-12-17	800.00	NULL	20
+7499	ALLEN	SALESMAN	7698	1981-02-20	1600.00	300.00	30
+7521	WARD	SALESMAN	7698	1981-02-22	1250.00	500.00	30
+7566	JONES	MANAGER		7839	1981-04-02	2975.00	NULL	20
+7654	MARTIN	SALESMAN	7698	1981-09-28	1250.00	1400.00	30
+7698	BLAKE	MANAGER		7839	1981-05-01	2850.00	NULL	30
+7782	CLARK	MANAGER		7839	1981-06-09	2450.00	NULL	10
+7788	SCOTT	ANALYST		7566	1982-12-09	3000.00	NULL	20
+7839	KING	PRESIDENT	NULL	1981-11-17	5000.00	NULL	10
+7844	TURNER	SALESMAN	7698	1981-09-08	1500.00	0.00	30
+7876	ADAMS	CLERK		7788	1983-01-12	1100.00	NULL	20
+7900	JAMES	CLERK		7698	1981-12-03	950.00	NULL	30
+7902	FORD	ANALYST		7566	1981-12-03	3000.00	NULL	20
+7934	MILLER	CLERK		7782	1982-01-23	1300.00	NULL	10
+
+----------------------------------------------------------------------------------------------------
+
+1.Find JONES's job
+
+select job from emp where ename='jones';
+
+select * from emp where ename='JONES';
+
+SELECT * FROM EMP WHERE ENAME='JONES';
+
+2.Find BLAKE's salary
+
+select sal from emp where ename='BLAKE';
+
+select * from emp where ename='BLAKE';
+
+3.Find all employee details who is working in department number 20
+
+select * from emp where deptno=20;
+
+4.Find all employee details whose job title is CLERK
+
+select * from emp where job='CLERK';
+
+5.Find all employee details who earns the commission
+
+select * from emp where comm >=0;
+
+select * from emp where comm is not null;
+
+7499	ALLEN	SALESMAN	7698	1981-02-20	1600.00	300.00	30
+7521	WARD	SALESMAN	7698	1981-02-22	1250.00	500.00	30
+7654	MARTIN	SALESMAN	7698	1981-09-28	1250.00	1400.00	30
+7844	TURNER	SALESMAN	7698	1981-09-08	1500.00	0.00	30
+
+6.Find all employee details who does not earn the commission
+
+select * from emp where comm is null;
+
+7369	SMITH	CLERK		7902	1980-12-17	800.00	NULL	20
+7566	JONES	MANAGER		7839	1981-04-02	2975.00	NULL	20
+7698	BLAKE	MANAGER		7839	1981-05-01	2850.00	NULL	30
+7782	CLARK	MANAGER		7839	1981-06-09	2450.00	NULL	10
+7788	SCOTT	ANALYST		7566	1982-12-09	3000.00	NULL	20
+7839	KING	PRESIDENT	NULL	1981-11-17	5000.00	NULL	10
+7876	ADAMS	CLERK		7788	1983-01-12	1100.00	NULL	20
+7900	JAMES	CLERK		7698	1981-12-03	950.00	NULL	30
+7902	FORD	ANALYST		7566	1981-12-03	3000.00	NULL	20
+7934	MILLER	CLERK		7782	1982-01-23	1300.00	NULL	10
+
+7.Find all employee details who do not have a manager
+
+select * from emp where mgr is null;
+
+8.Find all employee details who earns the salary is less than 1250
+
+select * from emp where sal <1250;
+
+7369	SMITH	CLERK	7902	1980-12-17	800.00	NULL	20
+7876	ADAMS	CLERK	7788	1983-01-12	1100.00	NULL	20
+7900	JAMES	CLERK	7698	1981-12-03	950.00	NULL	30
+
+9.Find all employee details who earns the salary is more than 2850
+
+select * from emp where sal >2850;
+
+10.Find all employee details who earns the salary is in between 1000 and 3000
+
+select * from emp where sal >=1000 and sal <=3000;
+
+select * from emp where sal between 1000 and 3000;
+
+11.Find all employee details who earns the salary is not between 1500 and 2850
+
+select * from emp where sal not between 1500 and 2850;
+
+12.Find all employee details who earns the salary is in the list of 800 950 1300
+
+select * from emp where sal in(800,950,1300);
+
+select * from emp where sal=800 or sal=950 or sal=1300;
+
+13.Find all employee details who is working as CLERK,ANALYST,SALESMAN
+
+select * from emp where job in('CLERK','ANALYST','SALESMAN');
+
+select * from emp where job='CLERK' or job='ANALYST' OR JOB='SALESMAN';
+
+14.Find all employee details who is not working as CLERK,ANALYST,SALESMAN
+
+select * from emp where job not in('CLERK','ANALYST','SALESMAN');
+
+select * from emp where job<>'CLERK' and job<>'ANALYST' and JOB='SALESMAN';
+
+15.Find all employee names whose name starts with S
+
+select ename from emp where ename like 'S%';
+
+16.Find all employee names whose name ends with S
+
+select ename from emp where ename like '%S';
+
+17.Find all employee names whose having A in their name
+
+select ename from emp where ename like '%A%';
+
+18.Find all employee names whose having A in their name as a second letter
+
+select ename from emp where ename like '_A%';
+
+19.Find all employee names whose having A in their name as a third letter
+
+select ename from emp where ename like '__A%';
+
+20.Find all employee names whose having two L's in their name
+
+select ename from emp where ename like '%LL%';
+
+21.Find all employee details who was hired in 1981
+
+select ename,hiredate from emp where hiredate like '%1981%';
+
+22.Find all employee details who was hired in between 20 FEB 1981 and 01 MAY 1981
+
+select ename,hiredate from emp where hiredate  between '1981/02/20' and '1981/05/01';
+
+===================================================================================
+
+State True or False
+
+1.We can use an insert command to copy rows from one table to another
+
+2.A table can be created using the select statement
+
+select * into emp1 from emp;
+
+3.A column alias replace the column name at display time only
+
+4.We can modify the precedence of operators by using parenthesis
+
+Fill in the Blanks
+
+1.To select rows within a range we use comparison operator ___________
+
+2.Using % to match a character pattern will not recognize __________
+
+3.Not between, not like, not in and is not null are the _________ operator
+
+...................................................................................
+
+Exercise :-
+
+1.Create a Query to display the name and salary of employees earning more than 2850
+
+2.Create a query to display the employee name and department number for employee number 7566
+
+3.Display the name and salary of all emplyees whose salary is not in the range of 1500,2850
+
+4.Display the employee name,job and start date of employees hired between february 20,1981 and May 1 1981 
+
+5.Display the employee name and department number of all emplyees in departments 10 and 30 
+
+6.List the name and salary of employees who earn more than 1500 and are in department 10 or 30
+
+7.Display the name and hiredate of every employee who was hired in 1982
+
+8.Display the name and job title of all employees who do not have a manager
+
+9.Display the name,salary and commission for all employees who earn commission
+
+10.Display the name of all employees where the third letter of their name is an A
+
+11.Display the name of all employees who have two Ls in their name and are in department 30 or their manager is 7782
+
+12.Display the name,job and salary for all employees whose job is clerk or analyst and their salary is not equal to 1000,3000,5000
+
+13.Display the name,salary and commission for all employees whose commission amount is greater than their salary increased by 10%
+
+=================================================================================================
+
